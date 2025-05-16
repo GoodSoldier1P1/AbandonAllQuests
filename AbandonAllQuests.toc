@@ -1,0 +1,5 @@
+## Interface: 40402
+## Title: Abandon All Quests
+## Notes: Adds a button and command to abandon all quests with confirmation.
+## Author: GoodSouldier1P1_7
+AbandonAllQuests.lua
