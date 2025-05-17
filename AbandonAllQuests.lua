@@ -40,10 +40,14 @@ local minimapLauncher = LDB:NewDataObject(addonName, {
         if button == "LeftButton" then
             StaticPopup_Show("CONFIRM_ABANDON_ALL_QUESTS")
         elseif button == "RightButton" then
-            InterfaceOptionsFrame_OpenToCategory("Abandon All Quests")
-            InterfaceOptionsFrame_OpenToCategory("Abandon All Quests") -- required twice for Blizzard bug
+            -- Just show the panel manually
+            if settingsPanel then
+                InterfaceOptionsFrame_OpenToFrame(settingsPanel) -- This might still fail...
+                ShowUIPanel(settingsPanel) -- This works if the above fails
+            end
         end
-    end,
+    end,    
+       
 
     OnTooltipShow = function(tooltip)
         tooltip:AddLine("Abandon All Quests")
@@ -111,35 +115,53 @@ end)
 
 
 -- Create Settings Panel
-local settingsPanel = CreateFrame("Frame", "AbandonAllQuestsOptionsPanel", InterfaceOptionsFramePanelContainer)
+local settingsPanel = CreateFrame("Frame", "AbandonAllQuestsOptionsPanel", UIParent)
 settingsPanel.name = "Abandon All Quests"
 
 local title = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
 title:SetPoint("TOPLEFT", 16, -16)
 title:SetText("Abandon All Quests")
 
--- Toggle Minimap Button Checkbox
-local checkbox = CreateFrame("CheckButton", nil, settingsPanel, "InterfaceOptionsCheckButtonTemplate")
+-- Checkbox (we'll init it later after ADDON_LOADED)
+local checkbox = CreateFrame("CheckButton", "AAQ_ShowMinimapCheckbox", settingsPanel, "InterfaceOptionsCheckButtonTemplate")
 checkbox:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -10)
 checkbox.Text:SetText("Show Minimap Button")
 
-checkbox:SetChecked(not AAQDB.minimap.hide)
-
-checkbox:SetScript("OnClick", function(self)
-    local checked = self:GetChecked()
-    AAQDB.minimap.hide = not checked
-    if checked then
-        LDBIcon:Show(addonName)
-    else
-        LDBIcon:Hide(addonName)
-    end
-end)
-
+-- Register panel early so it's in Interface -> AddOns
 InterfaceOptions_AddCategory(settingsPanel)
+
+-- Hook this into ADDON_LOADED block
+f:HookScript("OnEvent", function(_, _, name)
+    if name ~= addonName then return end
+
+    -- Safe checkbox init after vars are loaded
+    checkbox:SetChecked(not AAQDB.minimap.hide)
+    checkbox:SetScript("OnClick", function(self)
+        local checked = self:GetChecked()
+        AAQDB.minimap.hide = not checked
+        if checked then
+            LDBIcon:Show(addonName)
+        else
+            LDBIcon:Hide(addonName)
+        end
+    end)
+end)
 
 
 SLASH_AAQ1 = "/aaq"
 SlashCmdList["AAQ"] = function(msg)
     print("Abandon All Quests addon is working. Message: " .. msg)
 end
+
+
+-- Create options panel frame
+local settingsPanel = CreateFrame("Frame", "AbandonAllQuestsSettingsPanel", UIParent)
+settingsPanel.name = "Abandon All Quests"
+
+local title = settingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+title:SetPoint("TOPLEFT", 16, -16)
+title:SetText("Abandon All Quests")
+
+-- Add it to the Interface Options
+InterfaceOptions_AddCategory(settingsPanel)
 
