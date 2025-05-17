@@ -2,4 +2,12 @@
 ## Title: Abandon All Quests
 ## Notes: Adds a button and command to abandon all quests with confirmation.
 ## Author: GoodSouldier1P1_7
+## SavedVariables: AbandonAllQuestsDB
+## OptionalDeps: LibStub, CallbackHandler-1.0, LibDataBroker-1.1, LibDBIcon-1.0
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 AbandonAllQuests.lua
+AbandonAllQuests.tga
